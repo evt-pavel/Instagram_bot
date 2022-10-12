@@ -1,0 +1,8 @@
+accounts.txt
+to_unsubscribe.txt
+test.py
+config.py
+pyvenv.cfg
+/.idea
+/__pycache__
+geckodriver.log
