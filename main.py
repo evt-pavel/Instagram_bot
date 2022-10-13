@@ -50,7 +50,7 @@ def liked_posts():  # ставим лайки фотографиям
     for url in account_images:
         browser.get(url)
         sleep(random.randrange(7, 10))
-        browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button').click()
+        browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button').click()
         count += 1
         sleep(random.randrange(3, 6))
         if count == 2:
@@ -141,7 +141,7 @@ def reading_from_file(): # функция считывания ссылок из
 
 
 authenticate()
-write_to_file(url=input('Введите ссылку:\n'))
+#git write_to_file(url=input('Введите ссылку:\n'))
 sleep(3)
 reading_from_file()
 
