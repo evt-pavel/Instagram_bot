@@ -1,6 +1,7 @@
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -8,8 +9,13 @@ from config import username, password, exceptions
 from time import sleep
 import random
 
+options = Options()
+options.headless = False  # отключаем интерфейс браузера
+options.add_argument(
+    "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36")
+options.add_argument("--disable-blink-features=AutomationControlled")  # отключение режима вебдрайвера
+browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
 
-browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 follow = 0
 follower = 0
 count = 0
@@ -21,6 +27,11 @@ account_status = ''
 img_status = ''
 like_status = ''
 subscribe = ''
+xpath_like_button = '''
+/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/div[1]
+/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button
+'''
+like_button_status = ''
 
 
 def authenticate():  # функция авторизации
@@ -91,8 +102,9 @@ def liked_posts():  # ставим лайки фотографиям
         browser.get(url)
         like += 1
         like_status = f'{like} из 2'
+        view()
         sleep(random.randrange(7, 10))
-        browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button').click()
+        browser.find_element(By.XPATH, xpath_like_button).click()
 
         sleep(random.randrange(3, 6))
         if like == 2:
@@ -102,11 +114,12 @@ def liked_posts():  # ставим лайки фотографиям
 def number_of_publication():  # проверяем количество публикаций в аккаунте
     amount = browser.find_elements(By.TAG_NAME, 'header')
     for am in amount:
-        li = am.find_elements(By.TAG_NAME, 'li')
-        for l in li:
-            if 'публикаций' in l.text.split(): #and int(l.text.split()[0]) >= 2:
-                if ',' in l.text.split()[0] or int(l.text.split()[0]) >= 2:
+        tag_li = am.find_elements(By.TAG_NAME, 'li')
+        for li in tag_li:
+            if 'публикаций' in li.text.split():
+                if ',' in li.text.split()[0] or int(li.text.split()[0]) >= 2:
                     return True
+
 
 def type_account():  # проверяем тип аккаунта
     type_acc = browser.find_elements(By.TAG_NAME, 'h2')
@@ -125,10 +138,10 @@ def clock():  # задержка между открыванием публик�
             view()
 
 
-def follow_the_account(href): # открываем ссылку
+def follow_the_account(href):  # открываем ссылку
     global account_name, count, follow, follower, errors, hrefs_errors, account_status, img_status, subscribe, \
         like_status
-    account_status, img_status, account_name, like_status, subscribe = '0 из 2', '', href.split('/')[3], 0, ''
+    account_status, img_status, account_name, like_status, subscribe = '', '', href.split('/')[3], '0 из 2', ''
     view()
     count += 1
 
@@ -184,37 +197,27 @@ def follow_the_account(href): # открываем ссылку
         hrefs_errors.append(href)
 
 
-def reading_from_file(): # функция считывания ссылок из файла
-    with open('accounts.txt', 'r') as file:
+def reading_from_file():  # функция считывания ссылок из файла
+    with open('accounts.txt', 'r', encoding='utf-8') as file:
         accounts = file.readlines()
 
         global amount_hrefs
         amount_hrefs = len(accounts)
         view()
 
-    while accounts != []:
+    while len(accounts) != 0:
         acc = accounts[0]
         follow_the_account(acc)
         accounts.remove(acc)
 
-        with open('accounts.txt', 'w') as file_follow, open('to_unsubscribe.txt', 'a') as file_unfollow:
+        with open('accounts.txt', 'w', encoding='utf-8') as file_follow,\
+                open('to_unsubscribe.txt', 'a', encoding='utf-8') as file_unfollow:
             file_follow.writelines(accounts)
             file_unfollow.write(acc)
 
 
 def view():
     os.system('clear')
-    #print(f'Осталось {amount_hrefs}/{amount_hrefs - count}')
-    #print('Всего подписок: ', follow)
-    #print('Пропущено аккаунтов: ', follower)
-    #print('Ошибок: ', errors)
-    #print()
-    #if account_name != '':
-     #   print('Название аккаунта', account_name)
-    #if account_status != '':
-     #   print('Статус аккаунта: ', account_status)
-    #if img_status != '':
-     #   print(img_status)
 
     print(f'Осталось {amount_hrefs}/{amount_hrefs - count}')
     print('Всего подписок: ', follow)
@@ -228,10 +231,8 @@ def view():
     print(f'Открыто изображений: {like_status}')
 
 
-
-
 authenticate()
-#write_to_file(url=input('Введите ссылку:\n'))
+write_to_file(url=input('Введите ссылку на публикацию: '))
 sleep(3)
 reading_from_file()
 
@@ -239,6 +240,11 @@ browser.close()
 view()
 print('Программа завершена!')
 print('Список ошибок:')
-for rr in hrefs_errors:
-    print(rr)
 
+with open('errors.txt', 'w', encoding='utf-8') as error:
+    error.writelines(hrefs_errors)
+
+for error in hrefs_errors:
+    print(error)
+
+input('Press ENTER to exit')

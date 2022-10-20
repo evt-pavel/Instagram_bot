@@ -6,3 +6,4 @@ pyvenv.cfg
 /.idea
 /__pycache__
 geckodriver.log
+errors.txt
