@@ -27,10 +27,7 @@ account_status = ''
 img_status = ''
 like_status = ''
 subscribe = ''
-xpath_like_button = '''
-/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/div[1]
-/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button
-'''
+xpath_like_button = '''/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button'''
 like_button_status = ''
 process = ''
 
@@ -46,12 +43,13 @@ def authenticate():  # функция авторизации
     sleep(2)
     os.system('clear')
     print('Открываем Instagram...')
-    sleep(2)
+    browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[2]/form/div/div[5]/button').click()
+    sleep(8)
     os.system('clear')
     print('Открываем Instagram... Готово')
     sleep(2)
     print('Входим в аккаунт.')
-    username_input = browser.find_element(By.NAME, 'username')
+    username_input = browser.find_element(By.NAME, 'email')
     username_input.clear()
     username_input.send_keys(username)
     sleep(1)
@@ -59,7 +57,7 @@ def authenticate():  # функция авторизации
     print('Открываем Instagram... Готово')
     print('Входим в аккаунт..')
     sleep(1)
-    password_input = browser.find_element(By.NAME, 'password')
+    password_input = browser.find_element(By.NAME, 'pass')
     password_input.clear()
     password_input.send_keys(password)
     os.system('clear')
@@ -73,16 +71,29 @@ def authenticate():  # функция авторизации
     sleep(random.randrange(7, 10))
 
 
+
 def write_to_file(url):  # функция для записи ссылок на аккаунты в файл accounts.txt
     browser.get(f'{url}liked_by/')
     sleep(random.randrange(6, 7))
-    hrefs = browser.find_elements(By.TAG_NAME, 'a')
-    hrefs = [item.get_attribute('href') + '\n' for item in hrefs if item.get_attribute('href') not in exceptions]
+    # hrefs = browser.find_elements(By.TAG_NAME, 'a')
+    # hrefs = [item.get_attribute('href') + '\n' for item in hrefs if item.get_attribute('href') not in exceptions]
+    # hrefs = set(hrefs)
+    # with open('accounts.txt', 'w', encoding='utf-8') as file:
+    #     file.writelines(hrefs)
+    # view()
+
+    # собираем ссылки в список со скролом страницы
+    for i in range(10):
+        print(f'Итерация №{i}')
+        hrefs = browser.find_elements(By.TAG_NAME, 'a')
+        hrefs = [item.get_attribute('href') + '\n' for item in hrefs if item.get_attribute('href') not in exceptions]
+        browser.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+        sleep(3)
+
     hrefs = set(hrefs)
     with open('accounts.txt', 'w', encoding='utf-8') as file:
         file.writelines(hrefs)
     view()
-
 
 def liked_posts():  # ставим лайки фотографиям
     like = 0
@@ -209,7 +220,7 @@ def reading_from_file():  # функция считывания ссылок и�
         amount_hrefs = len(accounts)
         view()
 
-    while len(accounts) != 0:
+    while follow != 50: #len(accounts) != 0:
         acc = accounts[0]
 
         global account_name, subscribe, account_status, img_status, like_status, process
@@ -241,7 +252,7 @@ def view():
 
 authenticate()
 
-if input('Нужно добавлять ссылки?') == '+':
+if input('Нужно добавлять ссылки? ') == '+':
     write_to_file(url=input('Введите ссылку на публикацию: '))
     sleep(3)
     reading_from_file()
