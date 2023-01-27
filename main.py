@@ -10,7 +10,7 @@ from time import sleep
 import random
 
 options = Options()
-options.headless = True  # отключаем интерфейс браузера
+options.headless = False # отключаем интерфейс браузера
 options.add_argument(
     "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36")
 options.add_argument("--disable-blink-features=AutomationControlled")  # отключение режима веб драйвера
@@ -27,7 +27,8 @@ account_status = ''
 img_status = ''
 like_status = ''
 subscribe = ''
-xpath_like_button = '''/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]/section/main/div[1]/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button'''
+xpath_like_button = '''/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]/section/main/div[1]/div[1]
+/article/div/div[2]/div/div[2]/section[1]/span[1]/button'''
 like_button_status = ''
 process = ''
 
@@ -43,7 +44,7 @@ def authenticate():  # функция авторизации
     sleep(2)
     os.system('clear')
     print('Открываем Instagram...')
-    browser.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[1]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[2]/form/div/div[5]/button').click()
+    browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[2]/form/div/div[5]/button').click()
     sleep(8)
     os.system('clear')
     print('Открываем Instagram... Готово')
@@ -68,7 +69,7 @@ def authenticate():  # функция авторизации
     os.system('clear')
     print('Открываем Instagram... Готово')
     print('Входим в аккаунт... Готово')
-    sleep(random.randrange(7, 10))
+    sleep(random.randrange(15, 20))
 
 
 
@@ -235,6 +236,58 @@ def reading_from_file():  # функция считывания ссылок и�
             file_unfollow.write(acc)
 
 
+def unsubscribe():
+    with open('to_unsubscribe.txt', 'r', encoding='utf-8') as file:
+        accounts = file.readlines()
+
+        global amount_hrefs
+        amount_hrefs = len(accounts)
+
+        for acc in accounts:
+
+            browser.get(acc)
+            sleep(random.randrange(10))
+            button = browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]'
+                                           '/section/main/div/header/section/div[1]/div[1]/div/div[1]/button')
+
+            print(button.text)
+
+            if button.text == 'Подписки':
+                button.click()
+                sleep(random.randrange(3, 7))
+                browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div/div[7]/div/div/div/div/div/div').click()
+            elif button.text == 'Запрос отправлен':
+                button.click()
+                sleep(random.randrange(3, 7))
+                browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]'
+                                                    '/div/div/div/div/div[2]/div/div/div/div[7]').click()
+            else:
+                print('continue')
+
+            sleep(15)
+
+
+
+
+
+
+
+            sleep(5)
+            # browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div'
+            #                                '/div/div[2]/div/div/div/div[7]/div/div/div/div/div').click()
+
+
+            # browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/'
+            #                                'div/div[2]/div/div/div[3]/button[1]').click()
+            sleep(10)
+
+
+
+
+
+
+
+
 def view():
     os.system('clear')
 
@@ -249,17 +302,21 @@ def view():
     print(img_status)
     print(like_status)
 
+#
+# authenticate()
+#
+# if input('Нужно добавлять ссылки? ') == '+':
+#     write_to_file(url=input('Введите ссылку на публикацию: '))
+#     sleep(3)
+#     reading_from_file()
+# else:
+#     reading_from_file()
+#
+# browser.close()
+# view()
+# print('Программа завершена!')
+# input('Press ENTER to exit')
 
 authenticate()
+unsubscribe()
 
-if input('Нужно добавлять ссылки? ') == '+':
-    write_to_file(url=input('Введите ссылку на публикацию: '))
-    sleep(3)
-    reading_from_file()
-else:
-    reading_from_file()
-
-browser.close()
-view()
-print('Программа завершена!')
-input('Press ENTER to exit')
