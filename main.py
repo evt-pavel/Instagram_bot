@@ -243,50 +243,38 @@ def unsubscribe():
         global amount_hrefs
         amount_hrefs = len(accounts)
 
-        for acc in accounts:
+        try:
 
-            browser.get(acc)
-            sleep(random.randrange(10))
-            button = browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]'
+            for acc in accounts:
+
+                browser.get(acc)
+                sleep(random.randrange(10, 15))
+                button = browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[1]/div[2]'
                                            '/section/main/div/header/section/div[1]/div[1]/div/div[1]/button')
 
-            print(button.text)
+                print(button.text)
 
-            if button.text == 'Подписки':
-                button.click()
-                sleep(random.randrange(3, 7))
-                browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div/div[7]/div/div/div/div/div/div').click()
-            elif button.text == 'Запрос отправлен':
-                button.click()
-                sleep(random.randrange(3, 7))
-                browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]'
-                                                    '/div/div/div/div/div[2]/div/div/div/div[7]').click()
-            else:
-                print('continue')
+                if button.text == 'Подписки':
+                    button.click()
+                    sleep(random.randrange(3, 7))
+                    browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div/div[7]/div/div/div/div/div/div').click()
+                elif button.text == 'Запрос отправлен':
+                    button.click()
+                    sleep(random.randrange(3, 7))
+                    browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/button[1]').click()
+                else:
+                    print('continue')
 
-            sleep(15)
+                accounts.remove(acc)
+                count = 0
+                for i in range(30):
+                    count += 1
+                    print(count)
 
-
-
-
-
-
-
-            sleep(5)
-            # browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div'
-            #                                '/div/div[2]/div/div/div/div[7]/div/div/div/div/div').click()
-
-
-            # browser.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[2]/div/div/div/'
-            #                                'div/div[2]/div/div/div[3]/button[1]').click()
-            sleep(10)
-
-
-
-
-
-
-
+                with open('to_unsubscribe.txt', 'w', encoding='utf-8') as unsubscribe:
+                    unsubscribe.writelines(accounts)
+        except Exception as ex:
+            print(ex)
 
 def view():
     os.system('clear')
